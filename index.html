@@ -102,7 +102,7 @@
     </div>
    </div>
   </form>
-  <script>var props = {"i02s":{"name":"test","target":"_self","method":"POST","emailenable":false,"formType":"PAYMENT_FORM","websiteId":751,"merchantCode":"testkamal23111002","formInitUrl":"https://devapi.shopiana.in/api/v1/website/form/init?store=testkamal23111002","paymentCaputreUrl":"https://devapi.shopiana.in/api/v1/website/payment/capture?store=testkamal23111002","formDataurl":"https://devapi.shopiana.in/api/v1/wbWebsite/751/form/formData?store=testkamal23111002"}};
+  <script>var props = {"i02s":{"name":"test","target":"_self","method":"POST","emailenable":false,"formType":"PAYMENT_FORM","websiteId":751,"merchantCode":"testkamal23111002","formInitUrl":"https://devapi.shopiana.in/api/v1/website/form/payment/init?store=testkamal23111002","paymentCaputreUrl":"https://devapi.shopiana.in/api/v1/website/form/payment/capture?store=testkamal23111002","formDataurl":"https://devapi.shopiana.in/api/v1/wbWebsite/751/form/formData?store=testkamal23111002"}};
           var ids = Object.keys(props).map(function(id) { return '#'+id }).join(',');
           var els = document.querySelectorAll(ids);
           for (var i = 0, len = els.length; i < len; i++) {
@@ -198,7 +198,10 @@
               throw new Error('API call failed');
             }
           }).then(order => {
-            // console.log(order);
+            var _a;
+
+            console.log('order.....', order);
+
             try {
               if (order) {
                 console.log('order recived'); // const details = JSON.parse(order.details);
@@ -206,7 +209,7 @@
                 const details = {}; // razorpay payment options
 
                 const options = {
-                  key: order === null || order === void 0 ? void 0 : order.metadata.keyId,
+                  key: (_a = order === null || order === void 0 ? void 0 : order.metadata) === null || _a === void 0 ? void 0 : _a.keyId,
                   amount: details === null || details === void 0 ? void 0 : details.amount,
                   currency: "INR",
                   name: "NJ collections",
@@ -219,12 +222,14 @@
                     const paymentCaptureData = {
                       amount: order === null || order === void 0 ? void 0 : order.amount,
                       integrationKeys: {},
-                      paymentId: "",
+                      paymentId: handlerResponse === null || handlerResponse === void 0 ? void 0 : handlerResponse.razorpay_payment_id,
                       paymentModule: "wb_razorpay",
-                      paymentToken: order === null || order === void 0 ? void 0 : order.paymentToken,
+                      paymentToken: handlerResponse === null || handlerResponse === void 0 ? void 0 : handlerResponse.razorpay_order_id,
                       paymentType: "ONLINEPAYMENT",
-                      websiteFormId: formDataResponse === null || formDataResponse === void 0 ? void 0 : formDataResponse.formId,
-                      websiteId: websiteId
+                      websiteFormId: formDataResponse === null || formDataResponse === void 0 ? void 0 : formDataResponse.id,
+                      websiteId: websiteId,
+                      signature: handlerResponse === null || handlerResponse === void 0 ? void 0 : handlerResponse.razorpay_signature,
+                      transactionType: PAYMENT.AUTHORIZECAPTURE
                     };
                     const requestOptions = {
                       method: 'POST',
@@ -254,7 +259,8 @@
                   theme: {
                     color: '#3399cc'
                   }
-                }; // razorpay object initalize
+                };
+                console.log(options); // razorpay object initalize
 
                 const rzp1 = new window.Razorpay(options); // init razopay payment window 
 
