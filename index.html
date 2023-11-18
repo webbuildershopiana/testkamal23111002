@@ -116,7 +116,8 @@
     websiteId,
     merchantCode,
     formInitUrl,
-    paymentCaputreUrl
+    paymentCaputreUrl,
+    formType
   }) {
     const PAYMENT = {
       COD_UPPERCASE: "COD",
@@ -168,7 +169,12 @@
             throw new Error('API call failed');
           }
         }).then(formDataResponse => {
-          console.log('API response:', formDataResponse); // Define the URL and data for the POST request
+          console.log('API response:', formDataResponse); // IF IT IS A SIMPLE DATA FORM NOT A PAYMENT FORM
+
+          if (formType === "SIMPLE_FORM") {
+            return;
+          } // Define the URL and data for the POST request
+
 
           const data = {
             websiteFormId: formDataResponse === null || formDataResponse === void 0 ? void 0 : formDataResponse.id,
