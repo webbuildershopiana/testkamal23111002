@@ -80,22 +80,25 @@
  <head></head>
  <body id="i5mx">
   <form id="i02s" class="mx-5 py-5">
-   <div class="row">
+   <div id="irn8" class="row row-cols-md-6">
     <h2 class="pb-2">Payment form</h2>
-    <div class="col-md-6 col-12 mt-md-0 mt-4">
-     <label for="gjs-payment-first-name" class="form-label">First Name</label><input type="text" required id="gjs-payment-first-name" placeholder="First name" class="form-control">
+    <div id="igzb" class="col-md-6 col-12 mt-md-0 mt-4">
+     <label for="name" id="i5pr" class="form-label">First Name</label><input type="text" required id="gjs-payment-first-name" placeholder="First name" name="name" class="form-control">
+    </div>
+    <div id="i2ked" class="col-md-6 col-12 mt-md-0 mt-4">
+     <label for="dob" id="ia9a6" class="form-label">dob</label><input type="text" required placeholder="age" name="dob" id="iw60d" class="form-control">
     </div>
     <div class="col-md-6 col-12 mt-md-0 mt-4">
-     <label for="gjs-payment-last-name" class="form-label">Last Name</label><input type="text" required id="gjs-payment-last-name" placeholder="Last name" class="form-control">
+     <label for="lastname" id="id0fl" class="form-label">Last Name</label><input type="text" required id="gjs-payment-last-name" placeholder="Last name" name="lastname" class="form-control">
     </div>
     <div class="col-md-6 col-12 mt-4">
-     <label for="gjs-payment-email" class="form-label">Email</label><input type="email" required id="gjs-payment-email" placeholder="Enter your email" class="form-control">
+     <label for="email" id="i08j7" class="form-label">Email</label><input type="email" required id="gjs-payment-email" placeholder="Enter your email" name="email" class="form-control">
     </div>
     <div class="col-md-6 col-12 mt-4">
-     <label for="gjs-payment-phone-number" class="form-label">Phone Number </label><input type="number" required name="gjs-payment-phone-number" id="gjs-payment-phone-number" placeholder="Enter your phone number" class="form-control">
+     <label for="number" id="iz91g" class="form-label">Phone Number </label><input type="number" required name="number" id="gjs-payment-phone-number" placeholder="Enter your phone number" class="form-control">
     </div>
     <div class="col-md-6 col-12 mt-4">
-     <label for="gjs-payment-address" class="form-label">Comment</label><textarea placeholder="Leave a comment here" id="gjs-payment-address" required class="form-control"></textarea>
+     <label for="comment" id="ih21c" class="form-label">Comment</label><textarea placeholder="Leave a comment here" id="gjs-payment-address" required name="comment" class="form-control"></textarea>
     </div>
     <div class="mt-4">
      <button type="submit" class="btn btn-primary">Submit</button>
@@ -146,13 +149,38 @@
         razorpayScript.src = 'https://checkout.razorpay.com/v1/checkout.js';
         razorpayScript.async = true; // Append the script to the document's head
 
-        document.head.appendChild(razorpayScript); // Create a new FormData object
+        document.head.appendChild(razorpayScript);
+        const formData = new FormData(form); // Create an object to store input values
+        // const formData = {};
+        // Loop through the form elements
 
-        const formData = new FormData(form);
+        for (let i = 0; i < form.elements.length; i++) {
+          const element = form.elements[i]; // Check if the element has a name and is an input, textarea, select, or checkbox
+
+          if (element.name) {
+            if (element.tagName === 'INPUT') {
+              // Check the input type
+              if (element.type === 'text' || element.type === 'number' || element.type === 'email') {
+                // Text inputs
+                formData[element.name] = element.value;
+              } else if (element.type === 'checkbox') {
+                // Checkboxes
+                formData[element.name] = element.checked;
+              }
+            } else if (element.tagName === 'TEXTAREA') {
+              // Textareas
+              formData[element.name] = element.value;
+            } else if (element.tagName === 'SELECT') {
+              // Select elements
+              formData[element.name] = element.value;
+            }
+          }
+        } // Create a new FormData object
+
+
         formData.append('emailEnabled', emailenable);
         formData.append('formName', name);
-        formData.append('price', 100);
-        console.log(formData); // Perform an API call using fetch and Promises
+        formData.append('price', 100); // Perform an API call using fetch and Promises
 
         fetch(formDataurl, {
           method: "POST",
@@ -169,9 +197,10 @@
             throw new Error('API call failed');
           }
         }).then(formDataResponse => {
-          console.log('API response:', formDataResponse); // IF IT IS A SIMPLE DATA FORM NOT A PAYMENT FORM
-
+          // IF IT IS A SIMPLE DATA FORM NOT A PAYMENT FORM
           if (formType === "SIMPLE_FORM") {
+            form.reset();
+            alert("details saved successfully");
             return;
           } // Define the URL and data for the POST request
 
@@ -206,12 +235,9 @@
           }).then(order => {
             var _a;
 
-            console.log('order.....', order);
-
             try {
               if (order) {
-                console.log('order recived'); // const details = JSON.parse(order.details);
-
+                // const details = JSON.parse(order.details);
                 const details = {}; // razorpay payment options
 
                 const options = {
@@ -224,7 +250,6 @@
                   order_id: order === null || order === void 0 ? void 0 : order.paymentToken,
                   receipt: PAYMENT.RECEIPT_ORDER + (order === null || order === void 0 ? void 0 : order.orderId),
                   handler: handlerResponse => {
-                    console.log('razorpay response', handlerResponse);
                     const paymentCaptureData = {
                       amount: order === null || order === void 0 ? void 0 : order.amount,
                       integrationKeys: {},
@@ -251,22 +276,20 @@
                         throw new Error('API call failed');
                       }
                     }).then(responseData => {
-                      console.log('caputre response ', responseData);
-                      alert("payment complete successfully...");
+                      form.reset();
+                      alert("payment Received");
                     }).catch(error => {
                       console.log(error);
                     });
                   },
-                  prefill: {
-                    name: "Akshay ret",
-                    email: "test@gmail.com",
-                    contact: 7014405637
+                  prefill: {// name: "Akshay ret",
+                    // email: "test@gmail.com",
+                    // contact: 7014405637,
                   },
                   theme: {
                     color: '#3399cc'
                   }
-                };
-                console.log(options); // razorpay object initalize
+                }; // razorpay object initalize
 
                 const rzp1 = new window.Razorpay(options); // init razopay payment window 
 
@@ -282,7 +305,6 @@
               }
             } catch (error) {
               console.log(error);
-              debugger;
             }
           }).catch(error => {
             console.error('Error during API call:', error);
